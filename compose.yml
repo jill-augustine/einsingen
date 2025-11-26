@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: 
+      context: backend
+      # Relative to context
+      dockerfile: Dockerfile
+      tags:
+        - einsingen-backend
+    ports:
+    - 8000:8000
+    volumes:
+      - type: bind
+        source: ./backend/db.sqlite3
+        target: /app/db.sqlite3
+        bind:
+          create_host_path: true
+        read_only: false
+
+  frontend:
+    build:
+      context: frontend
+      # Relative to context
+      dockerfile: Dockerfile
+      tags:
+        - einsingen-frontend
+    ports:
+      - 5173:5173
