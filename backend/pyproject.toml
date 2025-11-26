@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name= "einsingen"
+dependencies = [
+    "black",
+    "django",
+    "django-cors-headers",
+    "django-ninja",
+    "flake8",
+    "isort",
+    "mido[ports-rtmidi]",
+    "pydantic",
+]
+version = "0.0.1"
+requires-python = ">= 3.14"
+
+[tool.black]
+line-length = 120
+skip-string-normalization=false
+
+[tool.setuptools]
+packages = ["einsingen"]

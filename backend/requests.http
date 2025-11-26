@@ -1,0 +1,46 @@
+POST http://127.0.0.1:8000/api/login
+Content-Type: application/x-www-form-urlencoded
+
+username=joe&password=blogs
+
+###
+POST http://127.0.0.1:8000/api/logout
+Cookie: sessionid=someLongSessionId
+
+###
+GET http://127.0.0.1:8000/api/melodies
+Cookie: sessionid=someLongSessionId
+###
+GET http://127.0.0.1:8000/api/users/me
+Cookie: sessionid=someLongSessionId
+###
+POST http://127.0.0.1:8000/api/exercises
+Authorization: Basic joe:blogs
+
+{"exercises": [{"name": "C5_major", "arp": true}]}
+
+###
+# List all users (must be superuser)
+GET http://127.0.0.1:8000/api/users
+Authorization: Basic superusername:superuserpassword
+
+# Create user
+POST http://127.0.0.1:8000/api/users/create
+Authorization: Basic joe:blogs
+
+{
+    "username": "joe6",
+    "password": "blogs6",
+    "email": "meep@meep.meep"
+}
+
+###
+# change password
+POST http://127.0.0.1:8000/api/users/password
+Authorization: Basic joe:blogs
+
+{
+    "username": "joe",
+    "current_password": "blogs",
+    "new_password": "blogs_again"
+}
