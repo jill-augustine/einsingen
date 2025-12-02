@@ -1,8 +1,8 @@
-import {ErrorBoundary} from "@/errors";
+import { ErrorBoundary } from "@/errors";
 import axios from "axios";
-import {type ActionFunctionArgs, redirect} from "react-router";
+import { type ActionFunctionArgs, redirect, useNavigate } from "react-router";
 import * as z from "zod";
-import {getBackendURL} from "@/url";
+import { getBackendURL } from "@/url";
 
 const loginFormSchema = z.object({
   username: z.string(),
@@ -11,7 +11,7 @@ const loginFormSchema = z.object({
 type LoginFormData = z.infer<typeof loginFormSchema>
 
 export const parseLoginForm = (formData: FormData): LoginFormData => {
-  const {data: parsedFormData, error} = loginFormSchema.safeParse({
+  const { data: parsedFormData, error } = loginFormSchema.safeParse({
     username: formData.get('username'),
     password: formData.get('password'),
   })
@@ -19,7 +19,7 @@ export const parseLoginForm = (formData: FormData): LoginFormData => {
   return parsedFormData
 }
 
-export const action = async ({request}: ActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
   const parsedFormData = parseLoginForm(formData)
 
@@ -28,7 +28,7 @@ export const action = async ({request}: ActionFunctionArgs) => {
     await axios.post(
       `${url}/api/login`,
       `username=${parsedFormData.username}&password=${parsedFormData.password}`,
-      {headers: {"Content-Type": "application/x-www-form-urlencoded"}}
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     )
     return redirect('/home')
   } catch {
@@ -38,11 +38,11 @@ export const action = async ({request}: ActionFunctionArgs) => {
   }
 }
 
-import {Link, useFetcher} from "react-router";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import { Link, useFetcher } from "react-router";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type LoginCardProps = {
   error?: string;
@@ -51,9 +51,10 @@ type LoginCardProps = {
 }
 
 export const LoginCard = ({
-                            error, loading, fetcher,
-                            // testUserError, testUserLoading
-                          }: LoginCardProps) => {
+  error, loading, fetcher,
+  // testUserError, testUserLoading
+}: LoginCardProps) => {
+  const navigate = useNavigate()
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -86,12 +87,17 @@ export const LoginCard = ({
                       {/*    Forgot your password?*/}
                       {/*  </Link>*/}
                     </div>
-                    <Input id="password" type="password" name="password" required/>
+                    <Input id="password" type="password" name="password" required />
                   </div>
                   {error && <p className="text-sm text-red-500">{error}</p>}
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Logging in...' : 'Login'}
-                  </Button>
+                  <span className="flex flex-row justify-evenly">
+                    <Button type="submit" className="" variant="outline" disabled={loading}>
+                      {loading ? 'Logging in...' : 'Login'}
+                    </Button>
+                    <Button type="button" className="" variant="outline" disabled={loading} onClick={() => navigate("/home?isGuestUser=true")}>
+                      {loading ? 'Logging in as guest...' : 'Continue as guest'}
+                    </Button>
+                  </span>
                 </div>
               </fetcher.Form>
               {/*<div className="mt-4 text-center text-sm">*/}
@@ -113,7 +119,7 @@ export const LoginPage = () => {
   const error = fetcher.data?.error
   const loading = fetcher.state === 'submitting'
   return (
-    <LoginCard fetcher={fetcher} error={error} loading={loading}/>
+    <LoginCard fetcher={fetcher} error={error} loading={loading} />
   )
 }
 

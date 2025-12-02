@@ -1,11 +1,11 @@
-import {ErrorBoundary} from "@/errors";
-import {route as homeRoute} from "@/home"
-import {ProtectedLayout, protectedLoader} from "@/layouts";
-import {route as loginRoute} from "@/login"
-import {route as logoutRoute} from "@/logout"
-import {createBrowserRouter, redirect, type RouteObject} from "react-router"
+import { ErrorBoundary } from "@/errors";
+import { route as homeRoute } from "@/home"
+import { ProtectedLayout, protectedLoader } from "@/layouts";
+import { route as loginRoute } from "@/login"
+import { route as logoutRoute } from "@/logout"
+import { createBrowserRouter, redirect, type RouteObject } from "react-router"
 
-const RootComponent = () => <br/>
+const RootComponent = () => <br />
 
 // Redirect to /home which will redirect to /login if necessary
 const rootLoader = () => {
@@ -23,7 +23,6 @@ const rootRoute: RouteObject = {
 export const router = createBrowserRouter([
   rootRoute,
   loginRoute,
-  logoutRoute,
   {
     // No path because it is a layout, not a parent page.
     path: undefined,
@@ -32,6 +31,9 @@ export const router = createBrowserRouter([
     ErrorBoundary,
     children: [
       homeRoute,
+      logoutRoute,
+      // TODO: settingsRoute
+      // TODO: historyRoute
     ],
   }
 ])
