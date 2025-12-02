@@ -1,8 +1,12 @@
+# NOTE: Generally speaking, multiple positional arguments are not allowed.
+# Sequences should be passed as predefined subclasses of BasePattern.
+# Individual items returned as Beat or Note instances, not the underlying _value.s
+
 from io import BytesIO
 import itertools as it
 import operator
 from collections.abc import Iterable, Iterator, Sequence
-from typing import TypeAlias
+from typing import overload, TypeAlias
 
 from einsingen.beats import Beat
 from einsingen.notes import Note
@@ -12,6 +16,9 @@ from mido.midifiles.midifiles import DEFAULT_TICKS_PER_BEAT
 # NOTE: These are not pydantic/ninja models because they are internal to the backend??
 
 FractionArgs: TypeAlias = str | float | int | tuple[float | int, float | int]
+BeatInput: TypeAlias = FractionArgs | Beat
+PitchInput: TypeAlias = int | Note
+MelodyInput: TypeAlias = tuple[BeatInput, PitchInput]
 
 
 class BasePattern(Sequence):
@@ -32,32 +39,47 @@ class BasePattern(Sequence):
     def __iter__(self) -> Iterator:
         return iter(self._values)
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return all(a == b for a, b in zip(self, other, strict=True))
+
     def _validate_type(self, values):
         if not isinstance(values, (Sequence, Iterable)):
             raise TypeError("Values must be a Sequence or Iterable.")
 
     def repeat[T: BasePattern](self: T, times: int) -> T:
-        return self.__class__(it.chain.from_iterable(it.repeat(self, times)))
+        return self.__class__(list(it.chain.from_iterable(it.repeat(self, times))))
 
     def concat[T: BasePattern](self: T, other: T) -> T:
         # This will be a subclass not the actual base pattern in practice
         cls = self.__class__
         if not isinstance(other, cls):
             raise TypeError("Cannot concatenate patterns of different types")
-        return cls(it.chain(self, other))
+        return cls(list(it.chain(self, other)))
 
 
 class PitchPattern(BasePattern):
     _values: tuple[Note]
     _range: tuple[Note, Note]
 
-    def __init__(self, notes):
+    def __init__(self, *notes: Sequence[int | Note] | PitchInput):
+        if len(notes) == 1 and isinstance(notes[0], Sequence):
+            notes = tuple(notes[0])
+
         self._validate_type(notes)
-        _notes = [n if isinstance(n, Note) else Note(n) for n in notes]
+        _notes = []
+        for n in notes:
+            if isinstance(n, Sequence):
+                raise TypeError("Nested sequences are not allowed in PitchPattern")
+            if isinstance(n, Note):
+                _notes.append(n)
+            else:
+                _notes.append(Note(n))
         assert len(_notes) > 0
         # make immutable by setting as tuple via base class
         super().__init__(_notes)
-        self._range = int(min(self)), int(max(self))
+        self._range = min(self), max(self)
 
     # Alias for the inherited `values` attribute
     @property
@@ -72,19 +94,19 @@ class PitchPattern(BasePattern):
         return self._range
 
     @classmethod
-    def from_template(cls, template: Sequence[int], starting_note: int | Note) -> PitchPattern:
+    def from_template(cls, template: Sequence[int], starting_note: PitchInput) -> PitchPattern:
         pitch_delta = int(starting_note) - template[0]
-        return PitchPattern(x + pitch_delta for x in template)
+        return PitchPattern([x + pitch_delta for x in template])
 
     def transpose(self, t: int) -> PitchPattern:
-        return PitchPattern(n.transpose(t) for n in self)
+        return PitchPattern([n.transpose(t) for n in self])
 
-    def transpose_to_start(self, note: int | Note) -> PitchPattern:
+    def transpose_to_start(self, note: PitchInput) -> PitchPattern:
         if isinstance(note, (Note, int)):
             value = int(note)
         else:
             raise ValueError(f"Exptected int or note. Got {type(note)}")
-        pitch_delta = self.notes[0].value - value
+        pitch_delta = value - self.notes[0].value
         return self.transpose(pitch_delta)
 
     def apply(self, rhythm: RhythmPattern) -> MelodyPattern:
@@ -94,9 +116,11 @@ class PitchPattern(BasePattern):
 
 
 class RhythmPattern(BasePattern):
-    value: tuple[Beat]
 
-    def __init__(self, beats: Iterable[FractionArgs]):
+    def __init__(self, *beats: Sequence[BeatInput] | BeatInput):
+        if len(beats) == 1 and isinstance(beats[0], Sequence):
+            beats = tuple(beats[0])
+
         self._validate_type(beats)
         _beats = []
         for b in beats:
@@ -138,18 +162,43 @@ class MelodyPattern(BasePattern):
     _bpm: int | None  # LATER: Use this somehow?
     expected_kwargs: tuple[str, ...] = ("pitch", "rhythm", "bpm")
 
+    @overload
+    def __init__(self, pairs: Sequence[MelodyInput], *, bpm: int | None = None) -> None: ...
+    @overload
     def __init__(
         self,
-        /,
-        pitch: PitchPattern,
-        rhythm: RhythmPattern,
+        *,
+        pitch: PitchPattern | Sequence[PitchInput],
+        rhythm: RhythmPattern | Sequence[BeatInput],
+        bpm: int | None = None,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        pairs: Sequence[MelodyInput] | None = None,
+        *,
+        pitch: PitchPattern | Sequence[PitchInput] | None = None,
+        rhythm: RhythmPattern | Sequence[BeatInput] | None = None,
         bpm: int | None = None,
     ):
+        if pairs:
+            assert all((isinstance(b, Beat) and isinstance(n, Note) for b, n in pairs))
+            # args are in (Beat, Note) order; unpack into rhythm, pitch
+            rhythm, pitch = zip(*pairs, strict=True)
+        if pitch is None or rhythm is None:
+            raise TypeError("`pitch` and `rhythm` must be provided either as a `pairs` Sequence or as keyword args")
         if len(pitch) != len(rhythm):
-            raise ValueError("`pitch` and `rhythm` must be the length")
+            raise ValueError("`pitch` and `rhythm` must be the same length")
         self._pitch = pitch if isinstance(pitch, PitchPattern) else PitchPattern(pitch)
         self._rhythm = rhythm if isinstance(rhythm, RhythmPattern) else RhythmPattern(rhythm)
         self._bpm = bpm
+        # Set _values in superclass to allow iteration through (Beat,Note) pairs
+        super().__init__(
+            zip(
+                self._rhythm,
+                self._pitch,
+            )
+        )
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: range={self.pitch.range}, duration={self.rhythm.duration} bars>"
@@ -175,14 +224,14 @@ class MelodyPattern(BasePattern):
             pitch = PitchPattern(pitch)
         return MelodyPattern(pitch=pitch, rhythm=self.rhythm, bpm=self.bpm)
 
-    def with_start(self, note: int | Note) -> MelodyPattern:
+    def with_start(self, note: PitchInput) -> MelodyPattern:
         return MelodyPattern(pitch=self.pitch.transpose_to_start(note), rhythm=self.rhythm)
 
-    def concat(self, other: MelodyPattern) -> MelodyPattern:
-        pitch = self.pitch.concat(other.pitch)
-        rhythm = self.rhythm.concat(other.rhythm)
-        # LATER: Throw error if bpm is off?
-        return MelodyPattern(pitch=pitch, rhythm=rhythm)
+    # def concat(self, other: MelodyPattern) -> MelodyPattern:
+    #     pitch = self.pitch.concat(other.pitch)
+    #     rhythm = self.rhythm.concat(other.rhythm)
+    #     # LATER: Throw error if bpm is off?
+    #     return MelodyPattern(pitch=pitch, rhythm=rhythm)
 
     def to_midi_track(self, channel: int = 0, velocity: int = 80, ticks_per_beat=None) -> MidiTrack:
         if ticks_per_beat is None:

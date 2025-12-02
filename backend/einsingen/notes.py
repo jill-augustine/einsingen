@@ -19,14 +19,26 @@ class Note:
     _value: int
     # later: Add name attribute?
 
-    def __init__(self, value: int) -> None:
-        if not self.MIN <= value <= self.MAX:
-            raise ValueError(f"Note must fall within valid range ({self.MIN} <= note <= {self.MAX}).")
+    def __init__(self, value: int | Note) -> None:
+        if isinstance(value, Note):
+            value = value.value
+        self._validate_note(value)
         self._value = value
 
     @classmethod
+    def _validate_note(cls, value: int) -> None:
+        if not isinstance(value, int):
+            raise TypeError("Note value must be an integer.")
+        if not cls.MIN <= value <= cls.MAX:
+            raise ValueError(f"Note must fall within valid range ({cls.MIN} <= note <= {cls.MAX}).")
+
+    @classmethod
     def is_valid(cls, note: int | Note):
-        return cls.MIN <= int(note) <= cls.MAX
+        try:
+            cls._validate_note(note.value if isinstance(note, Note) else note)
+            return True
+        except (ValueError, TypeError):
+            return False
 
     @property
     def value(self) -> int:
@@ -34,6 +46,11 @@ class Note:
 
     def __repr__(self) -> str:
         return f"<Note:{self.value}>"
+
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Note):
+            return False
+        return self.value == value.value
 
     def __int__(self) -> int:
         return int(self.value)
@@ -53,6 +70,7 @@ NOTES = {k: Note(v) for k, v in config["notes"].items()}
 # NOTE: Currently using arpeggio slicer but keeping "arp" runs in RUNS for now.
 # NOTE: Could also porentially be a class or at least a NamedTuple
 # (mood+scale_type, scale|arp, length, asc|desc) cts as pitch templates in PitchPattern.from_template
+# TODO:? Convert to Model for easier filtering?
 
 RUNS = {
     ("major", "scale", 8, "asc"): (0, 2, 4, 5, 7, 9, 11, 12),

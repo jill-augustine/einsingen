@@ -25,9 +25,9 @@ In the browser
 ---
 ## Future Plans..., Wishes..., Dreams... 💭
 ### Now
-- [ ] feat: User can login via demo user
-- [ ] test: Backend unit tests
-- [ ] ci: CI pipelines run tests
+- [x] feat: User can login via demo user
+- [x] test: Backend unit tests
+- [x] ci: CI pipelines run tests
 - [ ] feat: User can sign up
 - [ ] feat: User can change password
 - [ ] (maybe) fix: Requesting minor scale returns harmonic minor (to be confirmed)
