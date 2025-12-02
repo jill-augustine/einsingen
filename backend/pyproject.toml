@@ -14,6 +14,7 @@ dependencies = [
     "mido[ports-rtmidi]",
     "pydantic",
     "pytest",
+    "pytest-cov",
 ]
 version = "0.0.1"
 requires-python = ">= 3.14"
@@ -24,3 +25,4 @@ skip-string-normalization=false
 
 [tool.setuptools]
 packages = ["einsingen"]
+package-data = { einsingen = ["midi_notes.json"] }
