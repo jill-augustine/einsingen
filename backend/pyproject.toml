@@ -13,6 +13,7 @@ dependencies = [
     "isort",
     "mido[ports-rtmidi]",
     "pydantic",
+    "pytest",
 ]
 version = "0.0.1"
 requires-python = ">= 3.14"

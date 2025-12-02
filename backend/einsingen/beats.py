@@ -26,10 +26,10 @@ class Beat:
             v = Fraction(numerator, denominator)
         except TypeError:
             raise TypeError(f"Cannot interpret {(numerator, denominator)!r} as a Fraction")
-        else:
-            assert self.MIN <= v <= self.MAX
-            assert v in self.ACCEPTED_VALUES
-        return v
+
+        if (self.MIN <= v <= self.MAX) and (v in self.ACCEPTED_VALUES):
+            return v
+        raise ValueError(f"Fraction {v} not in accepted range")
 
     @property
     def value(self) -> Fraction:
@@ -42,3 +42,8 @@ class Beat:
 
     def __repr__(self) -> str:
         return f"<Beat: {self.value}>"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Beat):
+            return False
+        return self.value == other.value
