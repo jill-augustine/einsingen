@@ -1,7 +1,7 @@
 import django.contrib.auth as auth
 from django.contrib.auth.decorators import login_not_required
-from ninja.security import HttpBasicAuth
 from ninja.errors import AuthenticationError
+from ninja.security import HttpBasicAuth
 
 
 class BasicAuth(HttpBasicAuth):

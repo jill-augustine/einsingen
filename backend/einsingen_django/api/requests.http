@@ -44,3 +44,36 @@ Authorization: Basic joe:blogs
     "current_password": "blogs",
     "new_password": "blogs_again"
 }
+
+###
+POST http://localhost:8000/api/users/create
+Content-Type: application/x-www-form-urlencoded
+
+username=joe&password=blogs
+
+###
+DELETE http://127.0.0.1:8000/api/sessions
+Content-Type: application/json
+
+# {
+#     "username": "sandra",
+#     "password": "dee"
+# }
+
+###
+POST http://127.0.0.1:8000/api/sessions
+Content-Type: application/json
+
+{
+    "username": "sandra",
+    "password": "dee"
+}
+
+###
+POST http://127.0.0.1:8000/api/guest_sessions
+Content-Type: application/json
+
+###
+
+GET http://127.0.0.1:8000/api/sessions
+Content-Type: application/json

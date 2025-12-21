@@ -15,6 +15,7 @@ dependencies = [
     "pydantic",
     "pytest",
     "pytest-cov",
+    "pytest-django"
 ]
 version = "0.0.1"
 requires-python = ">= 3.14"
@@ -22,6 +23,10 @@ requires-python = ">= 3.14"
 [tool.black]
 line-length = 120
 skip-string-normalization=false
+
+[tool.pytest]
+django_debug_mode = "false"
+DJANGO_SETTINGS_MODULE = "einsingen_django.settings"
 
 [tool.setuptools]
 packages = ["einsingen"]

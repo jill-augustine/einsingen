@@ -1,16 +1,18 @@
 # All endpoings that return MelodyOut.
 
-from io import BytesIO
 import json
+from io import BytesIO
 from typing import NamedTuple
 
-# from einsingen.api.root import root_router
-import einsingen.library as lib
-from einsingen.api.exercises import get_exercise
-from einsingen.patterns import MelodyPattern
 from mido import MidiFile
 from ninja import Schema
 from pydantic import ConfigDict, TypeAdapter
+
+# from .root import root_router
+import einsingen.library as lib
+from einsingen.patterns import MelodyPattern
+
+from .exercises import get_exercise
 
 
 class MelodyResponse(Schema):

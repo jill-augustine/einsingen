@@ -23,5 +23,5 @@ NATURAL_MINOR_ARP = HARMONIC_MINOR_ARP = MELODIC_MINOR_ARP = PitchPattern([60, 6
 MAJOR_ARP_2OCT = PitchPattern([60, 64, 67, 72, 76, 79, 84])
 NATURAL_MINOR_ARP_2OCT = HARMONIC_MINOR_ARP_2OCT = MELODIC_MINOR_ARP_2OCT = PitchPattern([60, 63, 67, 72, 75, 79, 84])
 
-EIGHT_QUARTERS = RhythmPattern("1/4" for _ in range(8))
-FIFTEEN_QUARTERS = RhythmPattern("1/4" for _ in range(8))
+EIGHT_QUARTERS = RhythmPattern(["1/4" for _ in range(8)])
+FIFTEEN_QUARTERS = RhythmPattern(["1/4" for _ in range(8)])

@@ -3,10 +3,11 @@ import itertools as it
 import re
 from typing import Literal
 
-from einsingen.notes import NOTES, RUNS
-from einsingen.patterns import MelodyPattern, PitchPattern, RhythmPattern
 from ninja import Field, Schema
 from pydantic import field_validator
+
+from einsingen.notes import NOTES, RUNS
+from einsingen.patterns import MelodyPattern, PitchPattern, RhythmPattern
 
 NOTE_REGEX = r"([A-Ga-g])(b|#|nat)?\-?[1-9]"
 MOOD_REGEX = r"(major|minor)"
@@ -58,7 +59,7 @@ def get_exercise(run_query_string: str, arp: bool = False) -> MelodyPattern:
     if arp:
         pitch_pattern = get_arpeggio(pitch_pattern)
         # Standard rhythm
-    rhythm_pattern = RhythmPattern("1/4" for _ in pitch_pattern)
+    rhythm_pattern = RhythmPattern(["1/4" for _ in pitch_pattern])
     return MelodyPattern(pitch=pitch_pattern, rhythm=rhythm_pattern)
 
 

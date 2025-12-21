@@ -2,7 +2,9 @@ import { ErrorBoundary } from "@/errors";
 import { route as homeRoute } from "@/home"
 import { ProtectedLayout, protectedLoader } from "@/layouts";
 import { route as loginRoute } from "@/login"
+import { route as continueAsGuestRoute } from '@/guest'
 import { route as logoutRoute } from "@/logout"
+import { route as signupRoute } from "@/signup"
 import { createBrowserRouter, redirect, type RouteObject } from "react-router"
 
 const RootComponent = () => <br />
@@ -23,6 +25,8 @@ const rootRoute: RouteObject = {
 export const router = createBrowserRouter([
   rootRoute,
   loginRoute,
+  continueAsGuestRoute,
+  signupRoute,
   {
     // No path because it is a layout, not a parent page.
     path: undefined,

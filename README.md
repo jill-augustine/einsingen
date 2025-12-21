@@ -28,8 +28,8 @@ In the browser
 - [x] feat: User can login via demo user
 - [x] test: Backend unit tests
 - [x] ci: CI pipelines run tests
-- [ ] feat: User can sign up
-- [ ] feat: User can change password
+- [x] feat: User can sign up
+- [ ] feat: Logged-in user can change password
 - [ ] (maybe) fix: Requesting minor scale returns harmonic minor (to be confirmed)
 
 ### Next
@@ -61,3 +61,29 @@ fluidsynth -a coreaudio GeneralUser-GS.sf2 somefile.mid
 
 Soundfont can be downloaded from [GeneralUser-GS GitHub](https://github.com/mrbumpy409/GeneralUser-GS/raw/refs/heads/main/GeneralUser-GS.sf2).
 
+### Deploying to AWS
+
+The following env vars must be set or substituted:
+- `AWS_REGION`
+- `AWS_ACCOUNT_ID` (without hyphens)
+- `AWS_BACKEND_REPO_NAME`
+- `AWS_BACKEND_REPO_URI` which is
+    -  `"${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_BACKEND_REPO_NAME}"`
+
+Authenticate:
+```shell
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+```
+
+Create ECR:
+```shell
+aws ecr create-repository --repository-name ${AWS_BACKEND_REPO_NAME}
+```
+
+Build and push to AWS ECR
+
+```shell
+docker compose build backend
+docker tag einsingen-backend:latest ${AWS_BACKEND_REPO_URI}:latest
+docker push ${AWS_BACKEND_REPO_URI}:latest
+```
