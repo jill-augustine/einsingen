@@ -12,6 +12,6 @@ RUN pip install --upgrade pip
 RUN pip install .
 
 EXPOSE 8000
-ENV DJANGO_SETTINGS_MODULE="config.settings"
+ENV DJANGO_SETTINGS_MODULE="einsingen_django.settings"
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

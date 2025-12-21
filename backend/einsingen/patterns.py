@@ -2,16 +2,17 @@
 # Sequences should be passed as predefined subclasses of BasePattern.
 # Individual items returned as Beat or Note instances, not the underlying _value.s
 
-from io import BytesIO
 import itertools as it
 import operator
 from collections.abc import Iterable, Iterator, Sequence
-from typing import overload, TypeAlias
+from io import BytesIO
+from typing import TypeAlias, overload
+
+from mido import Message, MidiFile, MidiTrack
+from mido.midifiles.midifiles import DEFAULT_TICKS_PER_BEAT
 
 from einsingen.beats import Beat
 from einsingen.notes import Note
-from mido import Message, MidiFile, MidiTrack
-from mido.midifiles.midifiles import DEFAULT_TICKS_PER_BEAT
 
 # NOTE: These are not pydantic/ninja models because they are internal to the backend??
 

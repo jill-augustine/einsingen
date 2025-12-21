@@ -1,0 +1,1 @@
+The django "project" tha contains the django settings and the `api` "app".

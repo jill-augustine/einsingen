@@ -13,7 +13,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "corsheaders",
-    "einsingen",
+    "einsingen_django.api",
 ]
 
 MIDDLEWARE = [
@@ -42,7 +42,7 @@ SESSION_COOKIE_SECURE = False  # Dev only. True for production
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = False  # Dev only.
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "einsingen_django.urls"
 
 TEMPLATES = [
     {
@@ -53,7 +53,7 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
+WSGI_APPLICATION = "einsingen_django.wsgi.application"
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 

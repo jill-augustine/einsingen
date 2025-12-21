@@ -1,0 +1,1 @@
+Django "app" presenting the `einsingen` package via API.
