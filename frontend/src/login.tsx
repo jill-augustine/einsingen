@@ -26,9 +26,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const url = getBackendURL()
   try {
     await axios.post(
-      `${url}/api/login`,
-      `username=${parsedFormData.username}&password=${parsedFormData.password}`,
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      `${url}/api/sessions`,
+      JSON.stringify(
+        {
+          username: parsedFormData.username,
+          password: parsedFormData.password,
+        }
+      ),
+      { headers: { "Content-Type": "application/json" } }
     )
     return redirect('/home')
   } catch {
@@ -39,7 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 import { Link, useFetcher } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -66,7 +71,7 @@ export const LoginCard = ({
             </CardHeader>
             <CardContent>
               <fetcher.Form method="post">
-                <div className="flex flex-col gap-6">
+                <CardDescription className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="username">Username</Label>
                     <Input
@@ -90,22 +95,23 @@ export const LoginCard = ({
                     <Input id="password" type="password" name="password" required />
                   </div>
                   {error && <p className="text-sm text-red-500">{error}</p>}
-                  <span className="flex flex-row justify-evenly">
-                    <Button type="submit" className="" variant="outline" disabled={loading}>
+                  <span className="flex flex-row">
+                    <Button type="submit" variant="outline" disabled={loading}>
                       {loading ? 'Logging in...' : 'Login'}
                     </Button>
-                    <Button type="button" className="" variant="outline" disabled={loading} onClick={() => navigate("/home?isGuestUser=true")}>
-                      {loading ? 'Logging in as guest...' : 'Continue as guest'}
+                    <span className="grow" id="spacer" />
+                    <Button type="button" variant="outline" disabled={loading} onClick={() => navigate("/continue_as_guest")}>
+                      {loading ? 'Redirecting...' : 'Continue as guest'}
                     </Button>
                   </span>
-                </div>
+                </CardDescription>
               </fetcher.Form>
-              {/*<div className="mt-4 text-center text-sm">*/}
-              {/*  Don&apos;t have an account?{' '}*/}
-              {/*  <Link to="/sign-up" className="underline underline-offset-4">*/}
-              {/*    Sign up*/}
-              {/*  </Link>*/}
-              {/*</div>*/}
+              <div className="mt-5 text-center text-sm">
+                {'Don\'t have an account? '}
+                <Link to="/sign-up" className="underline underline-offset-4">
+                  Sign up
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

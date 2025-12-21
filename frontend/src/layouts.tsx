@@ -9,18 +9,20 @@ axios.defaults.withCredentials = true; // include cookies on requests
 
 export const protectedLoader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
-  if (url.searchParams.get("isGuestUser")) return { username: undefined, isGuestUser: true }
-  const backendURL = getBackendURL()
+  if (url.searchParams.get("isGuestUser")) {
+    return { username: undefined, isGuestUser: true }
+  }
 
+  const backendURL = getBackendURL()
   try {
     const jsonResponse: AxiosResponse<{ username: string }> = await axios.get(
-      `${backendURL}/api/users/me`,
+      `${backendURL}/api/sessions`,
       { withCredentials: true }
     )
     const response: { username: string } = jsonResponse.data
     console.log("Protected page response:", response)
     return { username: response.username, isGuestUser: false }
-  } catch (e) {
+  } catch {
     console.warn("Protected page error")
     return redirect("/login")
   }

@@ -1,15 +1,14 @@
-import {ErrorBoundary} from "@/errors";
-import {getBackendURL} from "@/url";
+import { ErrorBoundary } from "@/errors";
+import { getBackendURL } from "@/url";
 import axios from "axios";
-import {redirect, type RouteObject} from "react-router";
+import { redirect, type RouteObject } from "react-router";
 
 const loader = async () => {
   const url = getBackendURL()
   try {
-    await axios.post(
-      `${url}/api/logout`,
-      undefined,
-      {withCredentials: true}
+    await axios.delete(
+      `${url}/api/sessions`,
+      { withCredentials: true }
     )
     return redirect('/login')
   } catch {

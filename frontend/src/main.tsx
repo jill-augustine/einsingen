@@ -1,8 +1,7 @@
-import {
-  RouterProvider,
-} from "react-router";
+import { RouterProvider, } from "react-router";
+import React from "react";
 
-import {router} from "./routes";
+import { router } from "./routes";
 import ReactDOM from "react-dom/client";
 
 import "./index.css"
@@ -12,5 +11,7 @@ if (!root) {
   throw new Error("root is missing");
 }
 ReactDOM.createRoot(root).render(
-  <RouterProvider router={router}/>
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
 );

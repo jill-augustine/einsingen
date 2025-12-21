@@ -1,10 +1,9 @@
-import {Button} from "@/components/ui/button";
-import {Card} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import type {ExerciseBoardRow, ExerciseBoardRowSetter} from "@/exerciseBoard";
-import {cn} from "@/lib/utils";
-import {getStripeColoring} from "@/table";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { ExerciseBoardRow, ExerciseBoardRowSetter } from "@/exerciseBoard";
+import { cn } from "@/lib/utils";
+import { getStripeColoring } from "@/table";
 import {
   createColumnHelper,
   flexRender,
@@ -13,9 +12,9 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 
-import {PlusIcon} from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import * as React from "react";
-import {type ComponentProps, useState} from "react";
+import { type ComponentProps, } from "react";
 
 export type PatternTableRow = {
   note: string,
@@ -48,11 +47,11 @@ type Option = {
 }
 
 export const PatternSelectorTable = ({
-                                       setExerciseBoardData,
-                                       setReloadRequired,
-                                       globalFilter, setGlobalFilter,
-                                       ...props
-                                     }: ComponentProps<typeof Card> & {
+  setExerciseBoardData,
+  setReloadRequired,
+  globalFilter, setGlobalFilter,
+  ...props
+}: ComponentProps<typeof Card> & {
   setExerciseBoardData: ExerciseBoardRowSetter,
   setReloadRequired: BooleanSetter,
   globalFilter: string,
@@ -63,11 +62,11 @@ export const PatternSelectorTable = ({
     // Plural in the case of e.g. "C#/Db"
     const notes = row.note.split("/").map((note) => `${note}${row.octave}`)
     // MIDI notes are numbered different from the American system. Middle C = C4 (american) = C3 (MIDI)
-    const midiNotes = row.note.split("/").map((note) => `${note}${Number(row.octave) -1}`)
+    const midiNotes = row.note.split("/").map((note) => `${note}${Number(row.octave) - 1}`)
     const name = `${notes.join("/")} ${row.typeMood}`
     const key = `${midiNotes[0]}_${row.typeMood.split(" ").join("_")}`
     setExerciseBoardData(
-      (exerciseBoardRows: ExerciseBoardRow[]) => [...exerciseBoardRows, {name, key}]
+      (exerciseBoardRows: ExerciseBoardRow[]) => [...exerciseBoardRows, { name, key }]
     )
   }
 
@@ -76,39 +75,39 @@ export const PatternSelectorTable = ({
     columnHelper.display({
       id: "actions",
       // header: () => <span>Add to Board</span>,
-      cell: ({row, table}) => {
-        const {setExerciseBoardData, setReloadRequired} = table.options.meta ?? {}
+      cell: ({ row, table }) => {
+        const { setExerciseBoardData, setReloadRequired } = table.options.meta ?? {}
         if (!setExerciseBoardData || !setReloadRequired) throw Error
         return (<span className="flex justify-center">
-            <Button type="button" variant="outline" size="icon-sm"
-                    onClick={() => {
-                      addRowToBoard(row.original, setExerciseBoardData)
-                      setReloadRequired(true)
-                    }}>
-              <PlusIcon/>
-            </Button>
-          </span>
+          <Button type="button" variant="outline" size="icon-sm"
+            onClick={() => {
+              addRowToBoard(row.original, setExerciseBoardData)
+              setReloadRequired(true)
+            }}>
+            <PlusIcon />
+          </Button>
+        </span>
         )
       }
     }),
     columnHelper.accessor('note', {
-      header: ({column}) => {
+      header: () => {
         return (<>
-          <span>Note</span><br/>
+          <span>Note</span><br />
         </>)
       },
-      cell: ({getValue}) => <span>{getValue()}</span>,
+      cell: ({ getValue }) => <span>{getValue()}</span>,
       // TODO: Make custom filter to which an array of values is passed and returns True if the cell value is in the array
       filterFn: "auto", // contains,
     }),
     columnHelper.accessor('octave', {
-      header: ({column}) => <span className="">Octave</span>,
-      cell: ({getValue}) => <span>{getValue()}</span>,
+      header: () => <span className="">Octave</span>,
+      cell: ({ getValue }) => <span>{getValue()}</span>,
       filterFn: "auto", // contains,
     }),
     columnHelper.accessor('typeMood', {
-      header: ({column}) => <span>Type/Mood</span>,
-      cell: ({getValue}) => <span>{getValue()}</span>,
+      header: () => <span>Type/Mood</span>,
+      cell: ({ getValue }) => <span>{getValue()}</span>,
       filterFn: "auto", // contains,
     }),
 
@@ -128,7 +127,7 @@ export const PatternSelectorTable = ({
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    meta: {setExerciseBoardData, setReloadRequired},
+    meta: { setExerciseBoardData, setReloadRequired },
   });
   return (
     <Card {...props}>

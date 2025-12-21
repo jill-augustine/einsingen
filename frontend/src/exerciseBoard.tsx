@@ -1,9 +1,9 @@
 // The type containing information about a musical pattern
-import {Button} from "@/components/ui/button";
-import {Card} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import type {BooleanSetter, PatternTableRow} from "@/patternSelectorTable";
-import {getStripeColoring} from "@/table";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { BooleanSetter } from "@/patternSelectorTable";
+import { getStripeColoring } from "@/table";
 import {
   createColumnHelper,
   flexRender,
@@ -11,10 +11,10 @@ import {
   useReactTable,
   type Table as TanStackTable,
 } from "@tanstack/react-table";
-import {MoveDownIcon, MoveUpIcon, PlusIcon, Trash2Icon, XIcon} from "lucide-react";
+import { MoveDownIcon, MoveUpIcon, Trash2Icon } from "lucide-react";
 import * as React from "react";
-import {type ComponentProps} from "react";
-import {cn} from "@/lib/utils"
+import { type ComponentProps } from "react";
+import { cn } from "@/lib/utils"
 
 
 export type ExerciseBoardRow = {
@@ -24,7 +24,7 @@ export type ExerciseBoardRow = {
 
 export type ExerciseBoardRowSetter = React.Dispatch<React.SetStateAction<ExerciseBoardRow[]>>
 
-const OptionalTableHeader = ({table}: ComponentProps<typeof TableHeader> & {
+const OptionalTableHeader = ({ table }: ComponentProps<typeof TableHeader> & {
   table: TanStackTable<ExerciseBoardRow>
 }) => {
   return <TableHeader>
@@ -46,12 +46,12 @@ const OptionalTableHeader = ({table}: ComponentProps<typeof TableHeader> & {
 }
 
 export const ExerciseBoard = ({
-                                exerciseBoardData,
-                                setExerciseBoardData,
-                                className,
-                                setReloadRequired,
-                                ...props
-                              }: ComponentProps<typeof Card> & {
+  exerciseBoardData,
+  setExerciseBoardData,
+  className,
+  setReloadRequired,
+  ...props
+}: ComponentProps<typeof Card> & {
   exerciseBoardData: ExerciseBoardRow[],
   setExerciseBoardData: ExerciseBoardRowSetter,
   setReloadRequired: BooleanSetter,
@@ -90,30 +90,30 @@ export const ExerciseBoard = ({
   const columnHelper = createColumnHelper<ExerciseBoardRow>();
   const columns = [
     columnHelper.accessor('name', {
-      header: ({column}) => {
+      header: () => {
         return (<>
           <span>Pattern</span>
         </>)
       },
-      cell: ({getValue}) => <span>{getValue()}</span>,
+      cell: ({ getValue }) => <span>{getValue()}</span>,
     }),
     columnHelper.display({
       id: 'actions',
-      cell: ({row, table}) => {
-        const {setExerciseBoardData} = table.options.meta ?? {}
+      cell: ({ row, table }) => {
+        const { setExerciseBoardData } = table.options.meta ?? {}
         if (!setExerciseBoardData) throw Error
         return (<span className="flex justify-center gap-x-2">
-            <Button size="icon-sm" onClick={() => moveRowUp(row.index, setExerciseBoardData)}>
-              <MoveUpIcon/>
-            </Button>
-            <Button size="icon-sm" onClick={() => moveRowDown(row.index, setExerciseBoardData)}>
-              <MoveDownIcon/>
-            </Button>
-            <Button size="icon-sm"
-                    onClick={() => removeRowFromBoard(row.index, setExerciseBoardData)}>
-              <Trash2Icon/>
-            </Button>
-          </span>
+          <Button size="icon-sm" onClick={() => moveRowUp(row.index, setExerciseBoardData)}>
+            <MoveUpIcon />
+          </Button>
+          <Button size="icon-sm" onClick={() => moveRowDown(row.index, setExerciseBoardData)}>
+            <MoveDownIcon />
+          </Button>
+          <Button size="icon-sm"
+            onClick={() => removeRowFromBoard(row.index, setExerciseBoardData)}>
+            <Trash2Icon />
+          </Button>
+        </span>
         )
       }
     })
@@ -125,14 +125,14 @@ export const ExerciseBoard = ({
     enableColumnFilters: true,
     state: {},
     getCoreRowModel: getCoreRowModel(),
-    meta: {setExerciseBoardData, setReloadRequired},
+    meta: { setExerciseBoardData, setReloadRequired },
   });
 
   const includeHeader = false
   return (
     <Card className={className} {...props}>
       <Table>
-        {includeHeader ? <OptionalTableHeader table={table}/> : null}
+        {includeHeader ? <OptionalTableHeader table={table} /> : null}
         <TableBody>
           {table.getRowModel().rows.map((row, rowIdx) => (
             <TableRow key={row.id} className={cn("border-0", getStripeColoring(rowIdx))}>
