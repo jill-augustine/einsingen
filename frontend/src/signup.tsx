@@ -98,7 +98,7 @@ export const Page = () => {
                             </CardHeader>
                             <CardContent>
                                 <fetcher.Form method="post" className="flex flex-col gap-6">
-                                    {formFields.map(field => <div className="grid gap-2">
+                                    {formFields.map((field, i) => <div className="grid gap-2" key={i}>
                                         {field.label}
                                         {field.input}
                                     </div>)}

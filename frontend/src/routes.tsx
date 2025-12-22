@@ -4,6 +4,7 @@ import { ProtectedLayout, protectedLoader } from "@/layouts";
 import { route as loginRoute } from "@/login"
 import { route as continueAsGuestRoute } from '@/guest'
 import { route as logoutRoute } from "@/logout"
+import { route as settingsRoute } from "@/settings"
 import { route as signupRoute } from "@/signup"
 import { createBrowserRouter, redirect, type RouteObject } from "react-router"
 
@@ -36,7 +37,7 @@ export const router = createBrowserRouter([
     children: [
       homeRoute,
       logoutRoute,
-      // TODO: settingsRoute
+      settingsRoute,
       // TODO: historyRoute
     ],
   }
