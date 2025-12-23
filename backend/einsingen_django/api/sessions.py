@@ -10,7 +10,9 @@ from django.core.exceptions import BadRequest
 from ninja import Router, Schema
 from ninja.errors import AuthenticationError, HttpError
 from ninja.security import SessionAuth
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
+
+from einsingen_django.api.schemas import format_validation_error
 
 from .auth import SuperUserAuth
 from .users import CreateUserRequest, UserOut, _create_user
@@ -22,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 sessions_router = Router()
 
 
-class CreateSessionRequest(Schema):
+class CreateSessionRequest(BaseModel):
     username: str
     password: str
 
@@ -33,12 +35,7 @@ def create_session(request):
     try:
         parsed_body = CreateSessionRequest.model_validate_json(request.body)
     except ValidationError as e:
-        error_messages = []
-        for err in e.errors():
-            loc_string = ",".join([str(l) for l in err["loc"]])
-            err_string = f"{err['msg']}: {loc_string}"
-            error_messages.append(err_string)
-        raise HttpError(400, "\n".join(error_messages))
+        raise HttpError(400, format_validation_error(e))
     return _create_session(request, username=parsed_body.username, password=parsed_body.password)
 
 
@@ -47,7 +44,7 @@ def _create_session(request, username: str, password: str):
     if user is not None:
         auth.login(request, user)
         # Redirect to /home is handled on frontend
-        return UserOut(username=user.username, status=201, options=getattr(user, "options", {}))
+        return UserOut(username=user.username, options=getattr(user, "options", {})).response(201)
     else:
         raise AuthenticationError
 
@@ -57,7 +54,7 @@ def _create_session(request, username: str, password: str):
 def get_session(request):
     UserOptions = apps.get_model("api.UserOptions")
     if request.user.is_authenticated:
-        return UserOut(username=request.user.username, status=200, options=getattr(request.user, "options", {}))
+        return UserOut(username=request.user.username, options=getattr(request.user, "options", {})).response(200)
     else:
         raise AuthenticationError
 
@@ -65,7 +62,7 @@ def get_session(request):
 @sessions_router.delete("")
 def delete_session(request):
     auth.logout(request)
-    return UserOut(status=200)
+    return UserOut().response(200)
 
 
 def create_guest_session(request):
@@ -83,4 +80,4 @@ def create_guest_session(request):
     auth.login(request, user)
 
     logging.info(f"Created guest user with username: {user.username}")
-    return UserOut(username=user.username, status=201, options=getattr(user, "options", {}))
+    return UserOut(username=user.username, options=getattr(user, "options", {})).response(201)

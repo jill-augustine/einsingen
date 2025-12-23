@@ -34,10 +34,9 @@ class TestUser:
         resp: HttpResponse = client.post(
             "/api/users", {"username": some_test_username, "password": "password"}, "application/json"
         )
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         assert "sessionid" not in resp.cookies
         resp_body = resp.json()
-        assert resp_body.get("status") == 201
         assert resp_body.get("username") == some_test_username
         assert resp_body.get("options", {}).get("is_guest") in [None, False]  # Is None if no options set
 
@@ -57,7 +56,6 @@ class TestUser:
         del_resp: HttpResponse = admin_client.delete(f"/api/users/{user1.username}")
         assert del_resp.status_code == 200
         del_resp_body = del_resp.json()
-        assert del_resp_body.get("status") == 200
         assert del_resp_body.get("username") == user1.username
         assert not del_resp_body.get("options")  # empty dict of missing or otherwise falsy
         assert not django_user_model.objects.filter(username=user1.username).exists()
@@ -69,7 +67,6 @@ class TestUser:
         del_resp: HttpResponse = client.delete(f"/api/users/{user1.username}")
         assert del_resp.status_code == 200
         del_resp_body = del_resp.json()
-        assert del_resp_body.get("status") == 200
         assert del_resp_body.get("username") == user1.username
         assert not del_resp_body.get("options")  # empty dict of missing or otherwise falsy
         assert not django_user_model.objects.filter(username=user1.username).exists()
@@ -97,8 +94,8 @@ class TestUser:
         current_password_hash = user1.password
         new_password = "newpass"
         client.login(username=user1.username, password=password1)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "current_password": password1,
                 "new_password": new_password,
@@ -115,8 +112,8 @@ class TestUser:
         # current_password_hash = user1.password
         new_password = "newpass"
         client.login(username=user1.username, password=password1)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "current_password": "wrongpass",
                 "new_password": new_password,
@@ -135,8 +132,8 @@ class TestUser:
         # current_password_hash = user1.password
         new_password = "newpass"
         client.login(username=user2.username, password=password2)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "current_password": password1,
                 "new_password": new_password,
@@ -152,8 +149,8 @@ class TestUser:
         user1, password1 = user1
         current_password_hash = user1.password
         new_password = "newpass"
-        resp: HttpResponse = admin_client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = admin_client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "current_password": password1,
                 "new_password": new_password,
@@ -169,8 +166,8 @@ class TestUser:
         user1, password1 = user1
         new_password = "newpass"
         client.login(username=user1.username, password=password1)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "new_password": new_password,
             },
@@ -178,14 +175,14 @@ class TestUser:
         )
         assert resp.status_code == 400
         resp_body = resp.json()
-        assert resp_body.get("detail") == "Both current_password and new_password are required to update password"
+        assert resp_body.get("detail") == "Field required: current_password"
 
     def test_update_password_missing_new(self, client, user1):
         """User fails to provide new password"""
         user1, password1 = user1
         client.login(username=user1.username, password=password1)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {
                 "current_password": password1,
             },
@@ -193,20 +190,21 @@ class TestUser:
         )
         assert resp.status_code == 400
         resp_body = resp.json()
-        assert resp_body.get("detail") == "Both current_password and new_password are required to update password"
+        assert resp_body.get("detail") == "Field required: new_password"
 
     def test_update_password_missing_both(self, client, user1):
         """User fails to provide both current and new password"""
         user1, password1 = user1
         client.login(username=user1.username, password=password1)
-        resp: HttpResponse = client.patch(
-            f"/api/users/{user1.username}",
+        resp: HttpResponse = client.put(
+            f"/api/users/{user1.username}/password",
             {},
             "application/json",
         )
         assert resp.status_code == 400
         resp_body = resp.json()
-        assert resp_body.get("detail") == "Received no data to update"
+        assert "Field required: current_password" in resp_body.get("detail")
+        assert "Field required: new_password" in resp_body.get("detail")
 
 
 class TestSession:
@@ -224,9 +222,8 @@ class TestSession:
 
         resp: HttpResponse = client.post("/api/guest_sessions")
         # assert no internal server error when running test
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         resp_body = resp.json()
-        assert resp_body.get("status") == 201
         assert resp_body.get("options").get("is_guest")
 
         session_id = resp.cookies.get("sessionid")
@@ -240,12 +237,11 @@ class TestSession:
         resp: HttpResponse = client.post(
             "/api/sessions", {"username": user.username, "password": password}, "application/json"
         )
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         session_id: Morsel = resp.cookies["sessionid"]
         assert session_id is not None
         assert session_id.value != ""
         resp_body = resp.json()
-        assert resp_body.get("status") == 201
         assert resp_body.get("username") == user.username
         assert resp_body.get("options", {}).get("is_guest") in [None, False]  # Is None if no options set
 
@@ -300,14 +296,14 @@ class TestSession:
         resp1: HttpResponse = client.post(
             "/api/sessions", {"username": user1.username, "password": password1}, "application/json"
         )
-        assert resp1.status_code == 200
+        assert resp1.status_code == 201
         session_id1: Morsel = resp1.cookies["sessionid"]
         resp_username1 = resp1.json().get("username")
 
         resp2: HttpResponse = client.post(
             "/api/sessions", {"username": user2.username, "password": password2}, "application/json"
         )
-        assert resp2.status_code == 200
+        assert resp2.status_code == 201
         session_id2: Morsel = resp2.cookies["sessionid"]
         resp_username2 = resp2.json().get("username")
 
@@ -329,7 +325,6 @@ class TestSession:
         assert post_session_id != del_session_id
         assert del_session_id.value == ""
         del_resp_body = del_resp.json()
-        assert del_resp_body.get("status") == 200
         assert not del_resp_body.get("username")  # empty string or missing or otherwise falsy
         assert not del_resp_body.get("options")  # empty dict of missing or otherwise falsy
 
@@ -357,7 +352,6 @@ class TestSession:
         # NOTE: No SetCookie' header is sent in this response
 
         get_resp_body = get_resp.json()
-        assert get_resp_body.get("status") == 200
         assert get_resp_body.get("username") == user.username
         assert get_resp_body.get("options", {}).get("is_guest") in [None, False]  # Is None if no options set
 
