@@ -29,7 +29,7 @@ In the browser
 - [x] test: Backend unit tests
 - [x] ci: CI pipelines run tests
 - [x] feat: User can sign up
-- [ ] feat: Logged-in user can change password
+- [x] feat: Logged-in user can change password
 - [ ] (maybe) fix: Requesting minor scale returns harmonic minor (to be confirmed)
 
 ### Next

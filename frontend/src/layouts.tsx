@@ -77,7 +77,7 @@ const AuthenticatedUserHeader = ({ username, isGuest, ...props }: ComponentProps
     <div className="flex-grow" />
     <div className="flex gap-2 md:gap-4 items-center">
       <div className="flex justify-end items-center-safe gap-2">
-        Hello<span className="text-primary font-semibold">{isGuest ? " Guest" : username?.toLocaleUpperCase()}</span>
+        Hello<span className="text-primary font-semibold truncate">{isGuest ? " Guest" : username?.toLocaleUpperCase()}</span>
         <DropdownMenu >
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" asChild><MenuIcon size="md" /></Button>
