@@ -10,20 +10,22 @@ from django.http import Http404
 from ninja import Field, ModelSchema, Router, Schema
 from ninja.errors import HttpError
 from ninja.security import SessionAuth
-from pydantic import ValidationError, field_validator
+from pydantic import BaseModel, ValidationError, field_validator
+
+from einsingen_django.api.schemas import ResponseSchema, format_validation_error
 
 from .auth import SuperUserAuth
 
 
-class CreateUserRequest(Schema):
+class CreateUserRequest(BaseModel):
     username: str
     password: str
     email: str | None = None
     options: dict = Field(default_factory=dict)
 
 
-class UserOut(Schema):
-    status: int
+class UserOut(ResponseSchema):
+    status_code: ClassVar[int] = 200
     username: str = ""
     options: dict = Field(default_factory=dict)
 
@@ -36,22 +38,9 @@ class UserOut(Schema):
         return {k: v for k, v in value.__dict__.items() if k in allowed_keys}
 
 
-# TODO: This is not currently needed because the error is raised, not returned.
-class Error(Schema):
-    success: ClassVar[bool] = False
-    status: int
-    message: str
-
-
-class UpdateUserRequest(Schema):
-    # username: str
-    current_password: str | None = None
-    new_password: str | None = None
-
-
-class MessageOut(Schema):
-    success: bool
-    detail: str
+class UpdatePasswordRequest(Schema):
+    current_password: str
+    new_password: str
 
 
 users_router = Router()
@@ -68,7 +57,7 @@ def create_user(request):
         email=parsed_body.email,
         options=parsed_body.options,
     )
-    return UserOut(status=201, username=user.username, options=getattr(user, "options", {}))
+    return UserOut(username=user.username, options=getattr(user, "options", {})).response(201)
 
 
 def _create_user(username, password, email, options=None):
@@ -91,8 +80,8 @@ def _create_user(username, password, email, options=None):
     return user
 
 
-@users_router.patch("/{username}", auth=[SessionAuth(csrf=False), SuperUserAuth()])
-def update_user(request, username: str):
+@users_router.put("/{username}/password", auth=[SessionAuth(csrf=False), SuperUserAuth()])
+def update_password(request, username: str):
     UserModel = get_user_model()
     user_sending_request = request.user
     if not (user_sending_request.is_superuser or user_sending_request.username == username):
@@ -103,21 +92,13 @@ def update_user(request, username: str):
         raise HttpError(404, "User not found")
 
     try:
-        parsed_body = UpdateUserRequest.model_validate_json(request.body)
+        parsed_body = UpdatePasswordRequest.model_validate_json(request.body)
     except ValidationError as e:
-        error_details = [{k: v for k, v in err.items() if k in ["type", "loc", "message"]} for err in e.errors()]
-        raise HttpError(400, json.dumps(error_details))
-    if (parsed_body.current_password is None) ^ (parsed_body.new_password is None):
-        raise HttpError(400, "Both current_password and new_password are required to update password")
-    elif parsed_body.current_password is not None and parsed_body.new_password is not None:
-        # Both current_password and new_password are provided, proceed to update password
-        _ = _update_password(user_to_update, parsed_body.current_password, parsed_body.new_password)
-    else:
-        # Neither current_password nor new_password provided, nothing to update
-        raise HttpError(400, "Received no data to update")
+        raise HttpError(400, format_validation_error(e))
+    _ = _update_password(user_to_update, parsed_body.current_password, parsed_body.new_password)
 
-    # TODO: add other fields to update here
-    return UserOut(status=200, username=username)
+    # TODO: add another endpoint for updating /options
+    return UserOut(username=username).response(200)
 
 
 def _update_password(user, current_password: str, new_password: str):
@@ -141,7 +122,7 @@ def delete_user(request, username: str):
     if not user_to_delete:
         raise HttpError(404, "User not found")
     user_to_delete.delete()
-    return UserOut(status=200, username=username)
+    return UserOut(username=username).response(200)
 
 
 # ----------------------------------------------------
