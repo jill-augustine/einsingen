@@ -19,31 +19,28 @@ In the browser
 \* Currently users must be created directly on the backend using the django CLI. After creating a superuser, further users can be created via the backend api. See official [Django docs](https://docs.djangoproject.com).
 
 ## Troubleshooting
+
 - Unable to authenicate using correct credentials?
     - Ensure your browser preferences do not block setting cookies using Set-Cookie. 
 
 ---
 ## Future Plans..., Wishes..., Dreams... 💭
 ### Now
-- [x] feat: User can login via demo user
-- [x] test: Backend unit tests
-- [x] ci: CI pipelines run tests
-- [x] feat: User can sign up
-- [x] feat: Logged-in user can change password
-- [ ] (maybe) fix: Requesting minor scale returns harmonic minor (to be confirmed)
 
-### Next
-- [ ] (maybe) test: pre-commit hooks installed and run linting, tests etc.
 - [ ] feat: User can select arpeggios
-- [ ] feat: User can select from library of Einsingen patterns (e.g. `1-2-1-2-3-2-1-2-3-4...`, or `1-8` skipping numbers with/without pitch)
-- [ ] feat: User can view and reload previously created exercises (via an exercise history)
 - [ ] feat: Version deployed on [jill.codes](https://jill.codes) uses custom theme colours
 - [ ] feat: User can view app in dark mode based on user preferences (e.g. toggle button or defaults)
-- [ ] refactor: Database is separated into separate service
+
+### Next
+
+- [ ] (maybe) test: pre-commit hooks installed and run linting, tests etc.
+- [ ] feat: User can select from library of Einsingen patterns (e.g. `1-2-1-2-3-2-1-2-3-4...`, or `1-8` skipping numbers with/without pitch)
+- [ ] feat: User can view and reload previously created exercises (via an exercise history)
 - [ ] ci: CI pipelines run deployment of services
 - [ ] feat: User sees formatted error page with themed background
 
 ### Later
+
 - [ ] test: Frontend unit tests
 - [ ] test: Integration tests?
 - [ ] database service managed through Terraform
@@ -52,9 +49,24 @@ In the browser
 - [ ] feat: User can randomise exercise generation
 - [ ] feat: User can add tags to exercises for further filtering, e.g. during exercise randomisation
 
+## Blast from the past
+### Done
+
+- [x] feat: User can login via demo user
+- [x] test: Backend unit tests
+- [x] ci: CI pipelines run tests
+- [x] feat: User can sign up
+- [x] feat: Logged-in user can change password
+
+### "Not now"
+
+- [ ] refactor: Database is separated into separate service
+
 ---
 ## Developer notes for debugging 🚫🪲🐛🪳⛔
+
 * How to run midi files from CLI
+
 ```shell
 fluidsynth -a coreaudio GeneralUser-GS.sf2 somefile.mid 
 ```
