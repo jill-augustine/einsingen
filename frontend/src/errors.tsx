@@ -1,6 +1,6 @@
 import * as React from "react";
-import {isRouteErrorResponse} from "react-router";
-import {useRouteError} from "react-router-dom";
+import { isRouteErrorResponse } from "react-router";
+import { useRouteError } from "react-router-dom";
 
 export const ErrorBoundary = () => {
   const error = useRouteError()
@@ -10,6 +10,6 @@ export const ErrorBoundary = () => {
     const details = error.status === 404 ?
       "The requested page could not be found." :
       "An unexpected error occurred."
-    return <div>{message}: {details}<br/>Time for vocal rest?</div>
+    return <div>{message}: {details}<br />Time for vocal rest?</div>
   }
 }

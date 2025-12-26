@@ -15,7 +15,6 @@ import { Label } from '@/components/ui/label'
 import { getBackendURL } from '@/url';
 
 const parseSignUpForm = (formData: FormData) => {
-    console.log(formData)
     const signUpFormSchema = z.object({
         username: z.string(),
         password: z.string(),

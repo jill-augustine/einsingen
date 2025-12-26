@@ -69,7 +69,6 @@ const AuthenticatedUserHeader = ({ username, isGuest, ...props }: ComponentProps
   username: string | undefined,
   isGuest: boolean,
 }) => {
-  console.log("isGuest", isGuest)
   return <header className="flex flex-row h-16 items-center gap-2 border-b px-4" {...props}>
     <a href="/" className="flex gap-2 items-center-safe">
       <h1 className="text-xl font-medium">Einsingen</h1> <HouseIcon className="stroke-2 hidden sm:block" />
@@ -80,7 +79,7 @@ const AuthenticatedUserHeader = ({ username, isGuest, ...props }: ComponentProps
         Hello<span className="text-primary font-semibold truncate">{isGuest ? " Guest" : username?.toLocaleUpperCase()}</span>
         <DropdownMenu >
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" asChild><MenuIcon size="md" /></Button>
+            <Button variant="ghost" size='icon' asChild><MenuIcon /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="flex flex-col items-end-safe min-w-0.5 bg-white" align="end">
             {/* TODO: Add highlight on hover */}
@@ -105,7 +104,6 @@ const AuthenticatedUserHeader = ({ username, isGuest, ...props }: ComponentProps
 
 export const ProtectedLayout = () => {
   const user = useLoaderData<typeof protectedLoader>()
-  console.log(user)
   return <div className="w-full items-center justify-center p-2 md:p-4 min-w-sm">
     <AuthenticatedUserHeader username={user.username} isGuest={user.options.is_guest} />
     <Outlet context={{ user }} />
